@@ -13,7 +13,41 @@
 
 ## 方案一：Vercel + Railway（推荐，最简单）
 
-### 1. 部署后端到 Railway
+### 0. 前置准备
+
+确保您的代码已提交到 Git：
+```bash
+git add .
+git commit -m "Prepare for deployment"
+git push
+```
+
+### 1. 创建 Railway 项目并添加数据库（已完成）
+
+您已经完成了这一步！数据库已创建，连接字符串为：
+```
+postgresql://postgres:mnsFSAmpoHaZEnfZTyQvbGuyPhvDzySU@postgres.railway.internal:5432/railway
+```
+
+### 2. 部署后端服务到 Railway
+
+**方法 A：使用 Railway 网页界面（推荐）**
+
+1. 访问 https://railway.com/dashboard
+2. 点击 "New Project" 或在现有项目中
+3. 选择 "Deploy from GitHub repo"
+4. 连接您的 GitHub 账户并选择该仓库
+5. 配置部署：
+   - **Root Directory**: 留空（项目根目录）
+   - **Build Command**: `cd server && npm install && npm run build && npx prisma generate`
+   - **Start Command**: `cd server && npm start`
+6. 在 "Variables" 部分添加环境变量：
+   - `DATABASE_URL`: `postgresql://postgres:mnsFSAmpoHaZEnfZTyQvbGuyPhvDzySU@postgres.railway.internal:5432/railway`
+   - `PORT`: `3100`
+   - `NODE_ENV`: `production`
+7. 点击 "Deploy" 开始部署
+
+**方法 B：使用 Railway CLI**
 
 ```bash
 # 1. 安装 Railway CLI
@@ -22,22 +56,41 @@ npm install -g @railway/cli
 # 2. 登录 Railway
 railway login
 
-# 3. 进入 server 目录
-cd server
-
-# 4. 初始化项目
+# 3. 在项目根目录初始化
 railway init
 
-# 5. 添加 PostgreSQL 数据库
-railway add --plugin postgresql
+# 4. 链接到已有的数据库服务
+# 在网页界面中，将数据库添加到同一项目中
 
-# 6. 设置环境变量
-railway variables set DATABASE_URL="${{Postgres.DATABASE_URL}}"
+# 5. 设置环境变量
+railway variables set DATABASE_URL="postgresql://postgres:mnsFSAmpoHaZEnfZTyQvbGuyPhvDzySU@postgres.railway.internal:5432/railway"
 railway variables set PORT=3100
 railway variables set NODE_ENV=production
 
-# 7. 部署
+# 6. 部署
 railway up
+```
+
+### 3. 数据库初始化
+
+部署成功后，需要运行数据库迁移和种子数据：
+
+**方法 A：使用 Railway CLI 运行命令**
+```bash
+# 连接到部署的服务
+railway run cd server && npx prisma migrate deploy
+railway run cd server && npm run db:seed
+```
+
+**方法 B：在本地使用远程数据库运行**
+```bash
+# 创建 .env 文件
+cd server
+echo "DATABASE_URL=postgresql://postgres:mnsFSAmpoHaZEnfZTyQvbGuyPhvDzySU@postgres.railway.internal:5432/railway" > .env
+
+# 运行迁移和种子数据
+npx prisma migrate deploy
+npm run db:seed
 ```
 
 ### 2. 部署前端到 Vercel
