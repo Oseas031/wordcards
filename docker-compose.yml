@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: wordcards-postgres
+    environment:
+      POSTGRES_USER: wordcards
+      POSTGRES_PASSWORD: wordcards
+      POSTGRES_DB: wordcards
+    ports:
+      - "5432:5432"
+    volumes:
+      - wordcards_pgdata:/var/lib/postgresql/data
+volumes:
+  wordcards_pgdata:
+

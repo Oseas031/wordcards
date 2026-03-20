@@ -1,0 +1,13 @@
+---
+description: 前端（React/TS）约定：组件分层、状态与样式
+globs: src/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+# 前端约定
+
+- 页面放 `src/pages/`，复用组件放 `src/components/`，纯逻辑/算法放 `src/lib/`，数据常量放 `src/data/`。
+- 组件优先无副作用；副作用写在自定义 hook 或页面层。
+- 状态优先局部化；需要跨页再用 Context。
+- 样式优先复用全局 token（`src/index.css` 的 CSS 变量），避免随意新增颜色。
+

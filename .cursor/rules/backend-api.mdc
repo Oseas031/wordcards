@@ -1,0 +1,13 @@
+---
+description: 后端（NestJS/Prisma）约定：REST 设计、设备标识、迁移
+globs: server/**/*.{ts,prisma,md}
+alwaysApply: false
+---
+
+# 后端约定
+
+- 路由统一前缀 `/api/*`；返回 JSON；错误返回结构保持稳定。
+- **无登录模式**：用 `x-device-id` 作为设备标识；若缺失则生成并通过响应头回传。
+- Prisma：任何 schema 变更都通过 migration；不要手工改数据库结构。
+- 种子数据：`server/prisma/seed.ts` 只放演示/开发数据，不放生产密钥。
+

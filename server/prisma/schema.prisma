@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  words     Word[]
+  states    DeviceWordState[]
+  logs      StudyLog[]
+}
+
+model Word {
+  id        String   @id @default(uuid())
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  word      String
+  wordKey   String
+  phonetic  String?
+  meaning   String
+  example   String?
+  createdAt DateTime @default(now())
+  states    DeviceWordState[]
+
+  @@unique([bookId, wordKey])
+  @@index([bookId, wordKey])
+  @@index([wordKey])
+}
+
+model DeviceWordState {
+  id          String   @id @default(uuid())
+  deviceId    String
+  wordId      String
+  bookId      String
+  intervalDay Int
+  ease        Float
+  dueAt       DateTime
+  reviewedAt  DateTime?
+  streak      Int      @default(0)
+  reviews     Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  word Word @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceId, wordId])
+  @@index([deviceId, bookId, dueAt])
+}
+
+model StudyLog {
+  id        String   @id @default(uuid())
+  deviceId  String
+  bookId    String
+  dayKey    String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceId, bookId, dayKey])
+  @@index([deviceId, bookId, dayKey])
+}
+
